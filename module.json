@@ -1,7 +1,22 @@
 {
   "title": "Sprawlrunners Toolbag",
   "description": "Grab-bag of scripts and macros to run my game",
-  "version": "0.0.1",
+  "version": "#{VERSION}#",
+  "url": "#{URL}#",
+  "manifest": "#{MANIFEST}#",
+  "download": "#{DOWNLOAD}#",
+
+  "license": "LICENSE",
+  "readme": "README.md",
+  "authors": [
+    {
+      "name": "PenLlawen",
+      "discord": "docg#2827",
+      "url": "https://github.com/richardgaywood"}
+  ],
+  "library": false,
+  "socket": false,
+
   "compatibility": {
     "minimum": "11",
     "verified": "11"
