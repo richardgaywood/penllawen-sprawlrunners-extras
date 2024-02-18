@@ -1,0 +1,44 @@
+.lp {
+    line-height: var(--form-field-height);
+    
+    .value {
+      font-weight: 700;
+    }
+}
+
+.lp-spend-table tr {
+  /* background-color: revert; */
+  background-color: rgba(255, 255, 255, 0.1)
+}
+
+.lp-spend-table .total-row {
+  border-top: 1px solid var(--color-border-light-tertiary);
+}
+
+/* 
+.lp-spend-table tr:nth-child(odd) {
+  background-color: revert;
+}
+
+tr.lp-spend-table:nth-child(even) {
+  background-color: revert;
+} */
+
+/*
+#items > footer > table > 
+tbody > tr.lp-spend-table
+*/
+
+
+/* SWADE styles has
+
+    & table tbody tr:nth-child(odd) {
+        background-color: rgba(164, 164, 164, 0.2);
+    }
+
+    & table tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+*/
+

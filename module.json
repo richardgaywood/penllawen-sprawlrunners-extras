@@ -1,0 +1,25 @@
+{
+  "title": "Sprawlrunners Toolbag",
+  "description": "Grab-bag of scripts and macros to run my game",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11"
+  },
+  "id": "penllawen-sprawlrunners-extras",
+  "relationships": {
+    "systems": [
+      {
+        "id": "swade",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  },
+  "esmodules": [
+    "src/init.mjs"
+  ],
+  "styles": [
+    "styles/styles.css"
+  ]
+}
