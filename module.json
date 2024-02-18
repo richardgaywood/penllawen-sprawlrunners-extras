@@ -32,7 +32,7 @@
     ]
   },
   "esmodules": [
-    "src/init.mjs"
+    "scripts/init.mjs"
   ],
   "styles": [
     "styles/styles.css"
