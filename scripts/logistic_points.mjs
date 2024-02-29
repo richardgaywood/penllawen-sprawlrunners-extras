@@ -52,8 +52,9 @@ export class LpCalc {
         return lpForActors;
     }
 
-    static updateOtherActors(actor) {
-        log("entering LpCalc.updateOtherActors");
+    /** Handle document updates to any SWADE actor, refreshing our local data as necessary. */
+    static onSwadeActorPrepareDerivedData(actor) {
+        log("entering LpCalc.onSwadeActorPrepareDerivedData");
         if (! actor || !actor.hasPlayerOwner) return;
 
         // if we are updating any player-owned character, we might

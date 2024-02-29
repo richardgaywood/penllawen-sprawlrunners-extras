@@ -39,7 +39,7 @@ try {
         // show up on the first render of the itemDirectory
         if (game?.settings?.get(CONSTANTS.moduleName, 'lpCalculator')) {
             Hooks.on('renderActorSheet', LpRender.charsheetRenderer);
-            Hooks.on("swadeActorPrepareDerivedData", LpCalc.updateOtherActors);
+            Hooks.on("swadeActorPrepareDerivedData", LpCalc.onSwadeActorPrepareDerivedData);
             Hooks.on('renderItemDirectory', LpRender.itemDirectoryRenderer);
         }
 
