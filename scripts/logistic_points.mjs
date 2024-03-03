@@ -1,7 +1,43 @@
 import { log } from "./logger.mjs";
+import {CONSTANTS} from "./init.mjs";
 
 export class LpCalc {
-    static computeLpCost(actor) {
+
+    /**
+     * Handle document updates to any SWADE actor, refreshing our local views as necessary.
+     * @param {Actor} actor
+     * */
+    static onSwadeActorPrepareDerivedData(actor) {
+        log("entering LpCalc.onSwadeActorPrepareDerivedData");
+        if (!actor || !actor.hasPlayerOwner) return;
+
+        if (LpCache.lpHasChanged(actor)) {
+            // this actor's LP cost has been updated, so if we have their sheet open, we should
+            // redraw it. We try to minimise redraws, hence this cache.
+            Object.values(ui.windows)
+                .filter(x => (x.object?.type === "character" && x.rendered && x.object.id === actor.id))
+                .forEach(x => x.render(true));
+            // Also force a re-render of the Item Directory toolbar, for the per-character summary section
+            ui.sidebar?.render(true);
+        }
+    }
+
+    /** Calculate LP for all actors in the game. */
+    static calcLpCostForAllActors() {
+        const lpForActors = new Map();
+        for (const actor of game.actors) {
+            if (!actor.hasPlayerOwner) continue;
+            const lp = LpCalc.calcLpCostForActor(actor);
+            if (!(lp > 0)) continue;
+            lpForActors.set(actor.id, [lp, LpCalc.getMaxLpForActor(actor)]);
+        }
+        return lpForActors;
+    }
+
+    /** Calculate LP for one actor.
+     * @param {Actor} actor
+     */
+    static calcLpCostForActor(actor) {
         const isNPC = (actor.type === 'npc');
         const isVehicle = (actor.type === 'vehicle');
         // the other option is 'character', BTW
@@ -29,9 +65,8 @@ export class LpCalc {
                 // }
             }
         }
-        return lp; 
+        return lp;
     }
-
 
     static getMaxLpForActor(actor) {
         if (actor.system.additionalStats.maxLp) {
@@ -39,38 +74,6 @@ export class LpCalc {
         } else {
             return undefined;
         }
-    }
-
-    static getLpForActors() {
-        const lpForActors = new Map();
-        for (const actor of game.actors) {
-            if (!actor.hasPlayerOwner) continue;
-            const lp = LpCalc.computeLpCost(actor);
-            if (!(lp > 0)) continue;
-            lpForActors.set(actor._id, [lp, LpCalc.getMaxLpForActor(actor)]);
-        }
-        return lpForActors;
-    }
-
-    /** Handle document updates to any SWADE actor, refreshing our local data as necessary. */
-    static onSwadeActorPrepareDerivedData(actor) {
-        log("entering LpCalc.onSwadeActorPrepareDerivedData");
-        if (! actor || !actor.hasPlayerOwner) return;
-
-        // if we are updating any player-owned character, we might
-        // be updating their LP spend; and if we are updating their
-        // LP spend, we must recalculate our own display of the
-        // per-character total LP spend
-        Object.values(ui.windows)
-            .filter(x=> (x.object?.type === "character" && x.rendered))
-            .forEach(x => x.render(true))
-
-        // Also force a re-render of the Item Directory toolbar, if 
-        // has already been created  
-        ui.sidebar?.render(true);
-
-        // this causes infinite loops, duh
-        // Hooks.callAll('swadeActorPrepareDerivedData', game.user.character);
     }
 }
 
@@ -88,7 +91,7 @@ export class LpRender {
         if (!sectionDom) return;
 
         let lpString;
-        const lpSpent = LpCalc.computeLpCost(actor);
+        const lpSpent = LpCalc.calcLpCostForActor(actor);
         const maxLP = LpCalc.getMaxLpForActor(actor);
         if (maxLP) {
             lpString = `${lpSpent} / ${maxLP}`;
@@ -128,12 +131,12 @@ export class LpRender {
 
     static #lpTableRendererAllChars() {
         log("entering LpRender.lpTableRendererAllChars!");
-        const lpForActors = LpCalc.getLpForActors();
+        const lpForActors = LpCalc.calcLpCostForAllActors();
         
-        var tableToInsert = 
+        let tableToInsert =
             '<table class="lp-spend-table"><caption>LP spend</caption><tbody>';
-        var totalLp = 0;
-        var totalMaxLp = 0;
+        let totalLp = 0;
+        let totalMaxLp = 0;
         for (const [actorId, [lp, maxLp]] of lpForActors.entries()) {
             // if (lp === 0) continue; // skip chars with no gear, eg. summoned spirits
             const actorName = game.actors.get(actorId).name;
@@ -151,9 +154,9 @@ export class LpRender {
             .map(i => [i.system.price, i.name])
             .filter(i => i[0]>0);
 
-        var tableToInsert =
+        let tableToInsert =
             '<table class="lp-spend-table"><caption>LP spend</caption><tbody>';
-        var totalLp = 0;
+        let totalLp = 0;
         for (const [lp, itemName] of itemsWithCost) {
             tableToInsert += `<tr><td>${itemName}</td><td>${lp}</td></tr>`;
             totalLp += lp;
@@ -161,5 +164,34 @@ export class LpRender {
         tableToInsert += `<tr class="total-row"><td>TOTAL</td><td>${totalLp}</td></tr></tbody></table>`;
         return tableToInsert;
     }
+}
 
+export class LpCache {
+    /**
+     *
+     * @param {Actor} actor
+     * @returns {boolean}
+     */
+    static lpHasChanged(actor) {
+        log("entering LpCache.lpHasChanged!");
+
+        // a guard in case we get called before the game is ready
+        if (game === undefined || game.settings === undefined)
+            return true;
+
+        const newLp = LpCalc.calcLpCostForActor(actor);
+        let storage = game?.settings?.get(CONSTANTS.moduleName, 'lpCalculatorOutputCache');
+
+        if ( ! actor.id in storage) {
+            if (newLp === 0)
+                return false;
+        } else {
+            if (storage[actor.id] === newLp)
+                return false;
+        }
+
+        storage[actor.id] = newLp;
+        game.settings.set(CONSTANTS.moduleName, 'lpCalculatorOutputCache', storage);
+        return true;
+    }
 }

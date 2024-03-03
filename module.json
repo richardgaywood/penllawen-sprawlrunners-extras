@@ -1,11 +1,11 @@
 {
   "title": "Sprawlrunners Toolbag",
+  "id": "penllawen-sprawlrunners-extras",
   "description": "Grab-bag of scripts and macros to run my game",
   "version": "#{VERSION}#",
   "url": "#{URL}#",
   "manifest": "#{MANIFEST}#",
   "download": "#{DOWNLOAD}#",
-
   "license": "LICENSE",
   "readme": "README.md",
   "authors": [
@@ -21,7 +21,6 @@
     "minimum": "11",
     "verified": "11"
   },
-  "id": "penllawen-sprawlrunners-extras",
   "relationships": {
     "systems": [
       {

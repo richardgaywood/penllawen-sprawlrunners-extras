@@ -1,5 +1,5 @@
 import { log } from "./logger.mjs";
-import { LpCalc, LpRender  } from "./logistic_points.mjs";
+import {LpCache, LpCalc, LpRender} from "./logistic_points.mjs";
 import { PowerStuff } from "./power_prepopulation.mjs";
 import { EZRoller } from "./ezroller.mjs";
 import { DocgTools } from './tools.mjs';
@@ -15,6 +15,9 @@ try {
     Hooks.once('init', function () {
         console.log(`DOCG | init-ing ${CONSTANTS.moduleName}`);
 
+        /** @type {Settings} */
+        const settings = game.settings;
+
         game.settings.register(CONSTANTS.moduleName, 'lpCalculator', {
             name: 'Enable LP calculator',
             hint: "Turn on/off the automatic tracking of Logistic Points for Sprawlrunners / Titan Effect",
@@ -23,6 +26,26 @@ try {
             type: Boolean,
             config: true,
             requiresReload: true,
+        });
+
+        // // game.settings.register(CONSTANTS.moduleName, 'lpCalculatorOutputCache', {
+        // //     scope: 'client',
+        // //     type: object,
+        // //     config: false,
+        // // });
+        //
+        // game.settings.register(CONSTANTS.moduleName, 'lpCalculatorOutputCache', {
+        //     scope: "client",
+        //     type:
+        // });
+
+        game.settings.register(CONSTANTS.moduleName, 'lpCalculatorOutputCache', {
+            name: 'Cache storage',
+            hint: "Cache storage",
+            scope: 'client',
+            type: Object,
+            config: false,
+            requiresReload: false,
         });
 
         game.settings.register(CONSTANTS.moduleName, 'ezRoller', {
@@ -35,13 +58,6 @@ try {
             requiresReload: true,
         });
 
-        // you have to register renderItemDirectory hook before ready is called, or it won't
-        // show up on the first render of the itemDirectory
-        if (game?.settings?.get(CONSTANTS.moduleName, 'lpCalculator')) {
-            Hooks.on('renderActorSheet', LpRender.charsheetRenderer);
-            Hooks.on("swadeActorPrepareDerivedData", LpCalc.onSwadeActorPrepareDerivedData);
-            Hooks.on('renderItemDirectory', LpRender.itemDirectoryRenderer);
-        }
 
     });
     console.log(`DOCG | Registered init hook ${CONSTANTS.moduleName}`);
@@ -59,14 +75,14 @@ Hooks.once('devModeReady', function () {
 Hooks.on('preCreateItem', PowerStuff.onPowerPreCreate);
 
 
-
-
 Hooks.on("ready", () => { 
     log("registering tools package-level global");
     // to use this in a macro:
     // const tools = game.modules.get("swade-dev-scratchpad").tools;
     game.modules.get(CONSTANTS.moduleName).tools = new DocgTools();
 
+
+    game.settings.set(CONSTANTS.moduleName, 'lpCalculatorOutputCache', new Map());
 
     // if (game?.settings?.get(CONSTANTS.moduleName, 'lpCalculator')) {
     //     Hooks.on('renderActorSheet', LpRender.charsheetRenderer);
@@ -76,9 +92,27 @@ Hooks.on("ready", () => {
     //     // Hooks.on('renderItemDirectory', LpRender.itemDirectoryRenderer);
     // }
 
-    if (game?.settings?.get(CONSTANTS.moduleName, 'ezRoller')) {
+    // what's the correct way to "register this hook if this game setting is true"?
+    // if (game?.settings?.get(CONSTANTS.moduleName, 'ezRoller')) {
         Hooks.on('renderRollDialog', EZRoller.onRenderRollDialog);
-    }
+    // }
+
+    // game.settings.set(
+    //     CONSTANTS.moduleName,
+    //     'lpCalculatorOutputCache',
+    //     { cache: new Map() }
+    // );
+
+
+    // MOVED FROM INIT WHILE DEBUGGING
+    // you have to register renderItemDirectory hook before ready is called, or it won't
+    // show up on the first render of the itemDirectory
+    // if (game?.settings?.get(CONSTANTS.moduleName, 'lpCalculator')) {
+    Hooks.on('renderActorSheet', LpRender.charsheetRenderer);
+    Hooks.on("swadeActorPrepareDerivedData", LpCalc.onSwadeActorPrepareDerivedData);
+    Hooks.on('renderItemDirectory', LpRender.itemDirectoryRenderer);
+    // }
+
 });
 
 
