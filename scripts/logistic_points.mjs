@@ -43,7 +43,8 @@ export class LpCalc {
         // the other option is 'character', BTW
 
         let lp = actor.items
-            .map(i => i.system.price)
+            .filter(i => i.system.equipStatus > 0) // ignore anything "stored" for LP purposes
+            .map(i => i.system.price * i.system.quantity)
             .filter(p => p > 0)
             .reduce((total, curr) => total + curr, 0);
 
@@ -151,15 +152,23 @@ export class LpRender {
     static #lpTableRendererOneChar(actor) {
         log("entering LpRender.lpTableRendererOneChar!");
         const itemsWithCost = actor.items
-            .map(i => [i.system.price, i.name])
-            .filter(i => i[0]>0);
+            .filter(i => i.system.price > 0)
+            .filter(i => i.system.quantity > 0);
 
         let tableToInsert =
             '<table class="lp-spend-table"><caption>LP spend</caption><tbody>';
         let totalLp = 0;
-        for (const [lp, itemName] of itemsWithCost) {
-            tableToInsert += `<tr><td>${itemName}</td><td>${lp}</td></tr>`;
-            totalLp += lp;
+        for (const item of itemsWithCost) {
+            if (item.system.equipStatus > 0) {
+                if (item.system.quantity > 1) {
+                    tableToInsert += `<tr><td>${item.name} (x${item.system.quantity})</td><td>${item.system.price} each</td></tr>`;
+                } else {
+                    tableToInsert += `<tr><td>${item.name}</td><td>${item.system.price}</td></tr>`;
+                }
+                totalLp += item.system.price * item.system.quantity;
+            } else {
+                tableToInsert += `<tr><td>${item.name}</td><td>(stored)</td></tr>`;
+            }
         }
         tableToInsert += `<tr class="total-row"><td>TOTAL</td><td>${totalLp}</td></tr></tbody></table>`;
         return tableToInsert;
