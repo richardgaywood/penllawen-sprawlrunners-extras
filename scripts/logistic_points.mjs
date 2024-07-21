@@ -119,6 +119,7 @@ export class LpRender {
 
         // Finally, jam our data into the sheet.
         sectionDom.insertBefore(divToAdd, sectionDom.childNodes[2]);
+
     }
 
     static itemDirectoryRenderer(directory, html, options) {
@@ -150,7 +151,7 @@ export class LpRender {
     }
 
     static #lpTableRendererOneChar(actor) {
-        log("entering LpRender.lpTableRendererOneChar!");
+        // log("entering LpRender.lpTableRendererOneChar!");
         const itemsWithCost = actor.items
             .filter(i => i.system.price > 0)
             .filter(i => i.system.quantity > 0);
@@ -177,12 +178,11 @@ export class LpRender {
 
 export class LpCache {
     /**
-     *
      * @param {Actor} actor
      * @returns {boolean}
      */
     static lpHasChanged(actor) {
-        log("entering LpCache.lpHasChanged!");
+        // log("entering LpCache.lpHasChanged!");
 
         // a guard in case we get called before the game is ready
         if (game === undefined || game.settings === undefined)

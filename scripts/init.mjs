@@ -2,10 +2,12 @@ import { log } from "./logger.mjs";
 import {LpCache, LpCalc, LpRender} from "./logistic_points.mjs";
 import { PowerStuff } from "./power_prepopulation.mjs";
 import { EZRoller } from "./ezroller.mjs";
+import { AddButtonOverride } from "./add_button_override.mjs";
 import { DocgTools } from './tools.mjs';
 
 export const CONSTANTS = {
     moduleName: "penllawen-sprawlrunners-extras",
+    modulePath: "modules/penllawen-sprawlrunners-extras/",
     lpGameSettingName: "lpForActors",
     lpActorFlagName: "lpSpent",
     debug: true,
@@ -17,6 +19,9 @@ try {
 
         /** @type {Settings} */
         const settings = game.settings;
+
+        loadTemplates(CONSTANTS.modulePath + "templates/power_casting_calculator.hbs");
+
 
         game.settings.register(CONSTANTS.moduleName, 'lpCalculator', {
             name: 'Enable LP calculator',
@@ -58,6 +63,15 @@ try {
             requiresReload: true,
         });
 
+        game.settings.register(CONSTANTS.moduleName, 'addButtonOverride', {
+            name: 'Override the char sheet +Add button so it invokes other features',
+            hint: "Probably SWADE Item Tables...",
+            default: false,
+            scope: 'world',
+            type: Boolean,
+            config: true,
+            requiresReload: true,
+        });
 
     });
     console.log(`DOCG | Registered init hook ${CONSTANTS.moduleName}`);
@@ -71,14 +85,14 @@ Hooks.once('devModeReady', function () {
     log("DevMode debug flag logging is enabled!");
 });
 
-
-Hooks.on('preCreateItem', PowerStuff.onPowerPreCreate);
+// disabled for now, I think this code is inert
+// Hooks.on('preCreateItem', PowerStuff.onPowerPreCreate);
 
 
 Hooks.on("ready", () => { 
     log("registering tools package-level global");
     // to use this in a macro:
-    // const tools = game.modules.get("swade-dev-scratchpad").tools;
+    // const tools = game.modules.get("penllawen-sprawlrunners-extras").tools;
     game.modules.get(CONSTANTS.moduleName).tools = new DocgTools();
 
 
@@ -111,6 +125,12 @@ Hooks.on("ready", () => {
     Hooks.on('renderActorSheet', LpRender.charsheetRenderer);
     Hooks.on("swadeActorPrepareDerivedData", LpCalc.onSwadeActorPrepareDerivedData);
     Hooks.on('renderItemDirectory', LpRender.itemDirectoryRenderer);
+
+    // Hooks.on('renderActorSheet', AddButtonOverride.onRenderActorSheet);
+    Hooks.on('preCreateItem', AddButtonOverride.onPreCreateItem);
+
+
+
     // }
 
 });

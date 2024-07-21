@@ -1,6 +1,7 @@
 
 
 import { log } from "./logger.mjs";
+import {PowerCastingCalculator} from "./power_casting_calculator.mjs";
 
 // to use this in a macro:
 // const tools = game.modules.get("swade-dev-scratchpad").tools
@@ -10,6 +11,16 @@ export class DocgTools {
     }
 
 
+    /**
+     * @param {SwadeActor} actor
+     * @param {SwadeItem} power
+     */
+    async runPowerCastingCalculator(actor, power) {
+        new PowerCastingCalculator(actor, power).show();
+    }
+
+
+    /** RIP WarpGate :'( */
     async testWarpgate() {
         const texture = '/assets/tiles/hex_green.svg';
 
@@ -22,13 +33,6 @@ export class DocgTools {
             drawOutline:false,
             interval: 1
           });
-          
-        // const center = {
-        //     x: 500,
-        //     y: 500,
-        //     radius: 1000
-        // }
-
 
           /* define tile data -- assumed square aspect ratio */
           const data = {
@@ -38,11 +42,8 @@ export class DocgTools {
               height: center.radius * 2,
               texture: {src: texture},
           }
-          
         log ("making Tile");
-
         canvas.scene.createEmbeddedDocuments('Tile', [data])
-
     }
 
     /* module category stuff */

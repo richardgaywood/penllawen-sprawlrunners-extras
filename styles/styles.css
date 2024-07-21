@@ -15,30 +15,20 @@
   border-top: 1px solid var(--color-border-light-tertiary);
 }
 
-/* 
-.lp-spend-table tr:nth-child(odd) {
-  background-color: revert;
+
+
+.pccHeader {
+    .row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 100%;
+        flex: 1;
+    }
 }
-
-tr.lp-spend-table:nth-child(even) {
-  background-color: revert;
-} */
-
-/*
-#items > footer > table > 
-tbody > tr.lp-spend-table
-*/
-
-
-/* SWADE styles has
-
-    & table tbody tr:nth-child(odd) {
-        background-color: rgba(164, 164, 164, 0.2);
-    }
-
-    & table tr:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-*/
-

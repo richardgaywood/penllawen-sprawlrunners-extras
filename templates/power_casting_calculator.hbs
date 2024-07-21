@@ -1,0 +1,64 @@
+<div>
+
+
+    <h3 class="form-header">{{powerName}} by {{actorName}}</h3>
+
+
+    <div class="pccHeader">
+        <div class="row">
+            <div class="column">
+                <ul>
+                    <li>{{powerName}}'s Base PP: {{basePP}}</li>
+                    <li>{{actorName}}'s Power Limit: {{powerLimit}}</li>
+                    <li>{{actorName}}'s Mod Limit: {{modLimit}}</li>
+                </ul>
+            </div>
+            <div class="column">
+                <p><b>{{totalPPCost}} Total PP</b> ({{basePP}} base, +{{totalPPModCost}} mods)</p>
+                <p><b>{{currentNumMods}} mods added</b></p>
+                {{#if isWildCast}}<b>WILD MAGIC CASTING</b>{{/if}}
+            </div>
+        </div>
+    </div>
+
+    <button class="capture-current" type="button" data-user="{{ this.actorName }}"
+            data-action="rollIt">
+        Roll it!
+    </button>
+
+
+    <br />
+    <fieldset class="input-grid">
+        <legend>Power modifiers from SWADE System</legend>
+
+        {{#each systemMods}}
+            <div class="form-group">
+                <label>{{this.name}} ({{this.cost}} PP)</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="{{@key}}"
+                           data-dtype="Boolean" {{checked this.checked}} />
+                </div>
+                <p class="hint">{{this.hint}}</p>
+            </div>
+        {{/each}}
+    </fieldset>
+
+    <fieldset class="input-grid">
+        <legend>Power modifiers from {{powerName}} power</legend>
+
+        {{#each powerMods}}
+            <div class="form-group">
+                <label>{{this.name}} ({{this.cost}} PP)</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="{{@key}}"
+                           data-dtype="Boolean" {{checked this.checked}} />
+                </div>
+                <p class="hint">{{this.hint}}</p>
+            </div>
+        {{/each}}
+    </fieldset>
+
+    <h3 class="form-header">{{powerName}} description</h3>
+    {{{powerDesc}}}
+
+</div>
