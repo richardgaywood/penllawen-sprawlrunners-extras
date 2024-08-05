@@ -1,8 +1,5 @@
 <div>
-
-
     <h3 class="form-header">{{powerName}} by {{actorName}}</h3>
-
 
     <div class="pccHeader">
         <div class="row">
@@ -26,22 +23,82 @@
         Roll it!
     </button>
 
-
     <br />
-    <fieldset class="input-grid">
-        <legend>Power modifiers from SWADE System</legend>
 
+    <fieldset class="rmg-fieldset-styling"> <!-- class="input-grid" gives 2-col (or more?) -->
+        <legend>Power modifiers from SWADE System</legend>
         {{#each systemMods}}
-            <div class="form-group">
-                <label>{{this.name}} ({{this.cost}} PP)</label>
-                <div class="form-fields">
-                    <input type="checkbox" name="{{@key}}"
-                           data-dtype="Boolean" {{checked this.checked}} />
+            {{#if this.radioButtons}}
+                <div class="form-group">
+                    <label>{{this.name}}</label>
+                    <div class="form-fields">
+                        {{#each this.radioButtons}}
+                            <input type="radio"
+                                   name="{{this.group}}"
+                                   id="{{this.id}}"
+                                   value="{{this.id}}"
+                                   data-dtype="String"
+                                   {{checked this.checked}} />
+                            <label class="radio-label" for="{{this.id}}">
+                                {{this.name}}
+                            </label>
+                        {{/each}}
+                    </div>
+                    <p class="hint">{{this.hint}}</p>
                 </div>
-                <p class="hint">{{this.hint}}</p>
-            </div>
+            {{else}}
+
+                <div class="form-group">
+                    <div class="form-fields">
+                        <input type="checkbox" name="{{this.id}}"
+                               data-dtype="Boolean" {{checked this.checked}} />
+                    </div>
+                    <label>{{this.name}} ({{this.cost}} PP)</label>
+                    <p class="hint">{{this.hint}}</p>
+                </div>
+            {{/if}}
         {{/each}}
     </fieldset>
+
+    <br />
+
+    {{#if powerHasDamage}}
+        <fieldset class="rmg-fieldset-styling"> <!-- class="input-grid" gives 2-col (or more?) -->
+            <legend>Damaging power modifiers from SWADE System</legend>
+            {{#each systemDamageMods}}
+                {{#if this.radioButtons}}
+                    <div class="form-group">
+                        <label>{{this.name}}</label>
+                        <div class="form-fields">
+                            {{#each this.radioButtons}}
+                                <input type="radio"
+                                       name="{{this.group}}"
+                                       id="{{this.id}}"
+                                       value="{{this.id}}"
+                                       data-dtype="String"
+                                    {{checked this.checked}} />
+                                <label class="radio-label" for="{{this.id}}">
+                                    {{this.name}}
+                                </label>
+                            {{/each}}
+                        </div>
+                        <p class="hint">{{this.hint}}</p>
+                    </div>
+                {{else}}
+
+                    <div class="form-group">
+                        <div class="form-fields">
+                            <input type="checkbox" name="{{this.id}}"
+                                   data-dtype="Boolean" {{checked this.checked}} />
+                        </div>
+                        <label>{{this.name}} ({{this.cost}} PP)</label>
+                        <p class="hint">{{this.hint}}</p>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </fieldset>
+    {{/if}}
+    <br />
 
     <fieldset class="input-grid">
         <legend>Power modifiers from {{powerName}} power</legend>

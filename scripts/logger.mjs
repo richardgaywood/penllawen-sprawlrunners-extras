@@ -16,3 +16,10 @@ export function log(...args) {
     //     console.error("DOCG | Catastrophic logging failure", e);
     //   }
 }
+
+export function logError(msg, sticky) {
+    ui.notifications.error(msg.toString(), {
+        sticky,
+        console: true,
+    });
+}

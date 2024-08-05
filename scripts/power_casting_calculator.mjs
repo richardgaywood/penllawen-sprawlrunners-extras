@@ -1,4 +1,4 @@
-import { log } from "./logger.mjs";
+import {log, logError} from "./logger.mjs";
 import { CONSTANTS } from "./init.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
@@ -59,8 +59,16 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
     constructor(pcc) {
         super();
         this.pcc = pcc;
-
         this.systemMods = SwadeSystemPowerMods.getMods();
+
+        const numDamagingActions =
+            Object.entries(this.pcc.power.system.actions.additional)
+                .filter(([key,data]) => data.type === 'damage')
+                .length;
+        if (this.pcc.power.system.damage || numDamagingActions) {
+            this.powerHasDamage = true;
+            this.systemDamageMods = SwadeSystemPowerMods.getDamageMods();
+        }
 
         log('power desc is ', this.pcc.power.system.description);
         this.powerMods = SwadePowerModifierExtractor.attemptExtract(this.pcc.power.system.description);
@@ -77,7 +85,7 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
         window: {
             icon: 'fa-solid fa-hand-sparkles',
             title: 'Power calculator',
-            resizable: true,
+            resizeable: true,
             minimizable: true
         },
         position: {
@@ -106,6 +114,8 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
 
             systemMods: this.systemMods,
             powerMods: this.powerMods,
+            powerHasDamage: this.powerHasDamage,
+            systemDamageMods: this.systemDamageMods,
 
             currentNumMods: this.totalModCount,
             totalPPModCost: this.totalPPModCost,
@@ -146,23 +156,38 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
      * @returns {Promise<void>}
      */
     static async myFormHandler(event, form, formData) {
+        // log ("in myFormHandler; data is", formData.object, event, form, formData);
 
-        // Copy ticked checkbox state from the form over to our state object
-        Object.entries(formData.object).forEach(
-            ([key, value]) => {
-                if (key in this.systemMods) {
-                    this.systemMods[key].checked = value;
+        for (const [formKey, formValue] of Object.entries(formData.object)) {
+            for (const mods of [this.systemMods, this.powerMods]) {
+                if (!(formKey in mods)) continue;
+
+                switch (mods[formKey].type) {
+                    case 'radio':
+                        Object.entries(mods[formKey].radioButtons).forEach(
+                            ([id, data]) => {
+                                if (formValue === data.id) {
+                                    data.checked = true;
+                                    // these two fields that are on the top-level object
+                                    // (rather than the radio button itself) will be used
+                                    // in calcDerivedValues() above when adding up PP costs
+                                    mods[formKey].checked = true;
+                                    mods[formKey].cost = data.cost;
+                                } else {
+                                    data.checked = false;
+                                }
+                            })
+                        break;
+                    case 'checkbox':
+                        mods[formKey].checked = formValue;
+                        break;
+                    default:
+                        logError(`Unknown mod type for key ${formKey} ${mods[formKey].type}`, true);
+                        console.error(`formKey ${formKey} -> mods[formKey]`, mods[formKey]);
+                        console.error('myFormHandler event / form / formData', event, form, formData);
                 }
             }
-        );
-        // todo: this is a dupe of the above but a different input; genericise?
-        Object.entries(formData.object).forEach(
-            ([key, value]) => {
-                if (key in this.powerMods) {
-                    this.powerMods[key].checked = value;
-                }
-            }
-        );
+        }
 
         log('finished handler', this);
         this.render();
@@ -218,6 +243,7 @@ class SwadePowerModifierExtractor {
 
         for(const match of matches) {
             modifiers['powermod_' + idx++] = {
+                type: 'checkbox',
                 name: match[1],
                 cost: parseInt(match[2]),
                 checked: false,
@@ -250,7 +276,75 @@ class SwadePowerModifierExtractor {
 
 
 class SwadeSystemPowerMods {
-    static getMods () {
+    static getMods() {
+        return {
+            fatigue: {
+                type: 'checkbox',
+                id: 'fatigue', name: 'Fatigue', cost: 2, checked: false,
+                hint: 'Only for powers that drain or tax an opponent; cannot cause Incap'
+            },
+            glow_shroud: {
+                type: 'checkbox',
+                id: 'glow_shroud', name: 'Glow/Shroud', cost: 1, checked: false,
+                hint: 'Soft light or deeper shadows in SBT around target'
+            },
+            hinder_hurry: {
+                type: 'checkbox',
+                id: 'hinder_hurry', name: 'Hinder/Hurry', cost: 1, checked: false,
+                hint: '-2 or +2 to target\'s Pace'
+            },
+            range: {
+                type: 'radio',
+                name: 'Extra range',
+                hint: 'Double (+1PP) or triple (+2PP) listed Power range',
+                radioButtons: [{
+                    group: 'range', id: 'range-1', cost: 1, checked: false, name: '2×'
+                }, {
+                    group: 'range', id: 'range-2', cost: 2, checked: false, name: '3×'
+                }, {
+                    group: 'range', id: 'range-0', cost: 0, checked: true, name: '(none)'
+                }]
+            },
+            selective: {
+                type: 'checkbox',
+                id: 'selective', name: 'Selective', cost: 1, checked: false,
+                hint: 'Can pick targets inside spell\'s Area of Effect'
+            },
+        }
+    }
+
+    static getDamageMods() {
+        return {
+            ap: {
+                type: 'radio',
+                name: 'Armour Piercing',
+                hint: 'Add armour piercing values to the damage roll from this power; 1/2/3 PP for +2/+4/+6',
+                radioButtons: [{
+                    group: 'ap',  id: 'ap1', cost: 1, checked: false, name: 'AP+2',
+                },
+                    {
+                        group: 'ap', id: 'ap2', cost: 2, checked: false, name: 'AP+4',
+                    },
+                    {
+                        group: 'ap', id: 'ap3', cost: 3, checked: false, name: 'AP+6',
+                    },
+                    {
+                        group: 'ap', id: 'ap0', cost: 0, checked: true, name: '(none)'
+                    }]
+            },
+            heavy_weapon: {
+                type: 'checkbox',
+                id: 'heavy_weapon', name: 'Heavy Weapon', cost: 2, checked: false,
+                hint: 'The attack counts as a Heavy Weapon'
+            },
+            lingering_damage: {
+                type: 'checkbox',
+                id: 'lingering_damage', name: 'Lingering Damage', cost: 2, checked: false,
+                hint: 'Extends damage into next turn, at -1 die step (eg 2d6 -> 2d4)'
+            },
+        }
+    }
+    static getModsOld () {
         return {
             ap1: {
                 // NB: the child `id` field here isn't used but I haven't gotten around

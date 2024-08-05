@@ -15,8 +15,6 @@
   border-top: 1px solid var(--color-border-light-tertiary);
 }
 
-
-
 .pccHeader {
     .row {
         display: flex;
@@ -31,4 +29,57 @@
         flex-basis: 100%;
         flex: 1;
     }
+}
+
+
+/* examples from
+   https://github.com/trioderegion/squadron/blob/master/src/apps/Formation/style.scss */
+.rmg-fieldset-styling {
+
+    /*display:grid;*/
+    /*grid-gap: 5px;*/
+    /*grid:*/
+    /*"header header header . common" auto*/
+    /*".      up      .     . common" auto*/
+    /*"left   normal  right . elevation" auto*/
+    /*".      down    .     . elevation" auto*/
+    /*/ 1fr 1fr 1fr 5px 2fr;*/
+    /*.flexcol {*/
+    /*    height:100%;*/
+    /*    width:100%;*/
+    /*}*/
+
+
+
+    /*align-items:center;*/
+    /*justify-items:center;*/
+
+
+
+    /*input[type="radio"] {*/
+    /*    margin-top: 3px;*/
+    /*    margin-bottom: 3px;*/
+    /*}*/
+
+    /*label {*/
+    /*    display:inline-flex;*/
+    /*    align-items:center;*/
+    /*    justify-content: flex-start;*/
+    /*    white-space: nowrap;*/
+
+    /*    input {*/
+    /*        position:static;*/
+    /*        margin-right:5px;*/
+    /*    }*/
+    /*}*/
+
+
+    /*h2, h3 {*/
+    /*    margin:0;*/
+    /*    border:none;*/
+
+    /*    i {*/
+    /*        padding-left:5px;*/
+    /*    }*/
+    /*}*/
 }
