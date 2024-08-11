@@ -82,7 +82,7 @@
                                 </label>
                             {{/each}}
                         </div>
-                        <p class="hint">{{this.hint}}</p>
+                        <p class="hint">{{{this.hint}}}</p>
                     </div>
                 {{else}}
 
@@ -92,7 +92,7 @@
                                    data-dtype="Boolean" {{checked this.checked}} />
                         </div>
                         <label>{{this.name}} ({{this.cost}} PP)</label>
-                        <p class="hint">{{this.hint}}</p>
+                        <p class="hint">{{{this.hint}}}</p>
                     </div>
                 {{/if}}
             {{/each}}
@@ -110,7 +110,7 @@
                     <input type="checkbox" name="{{@key}}"
                            data-dtype="Boolean" {{checked this.checked}} />
                 </div>
-                <p class="hint">{{this.hint}}</p>
+                <p class="hint">{{{this.hintEnriched}}}</p>
             </div>
         {{/each}}
     </fieldset>

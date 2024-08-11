@@ -61,17 +61,21 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
         this.pcc = pcc;
         this.systemMods = SwadeSystemPowerMods.getMods();
 
-        const numDamagingActions =
-            Object.entries(this.pcc.power.system.actions.additional)
-                .filter(([key,data]) => data.type === 'damage')
-                .length;
-        if (this.pcc.power.system.damage || numDamagingActions) {
+        // const numDamagingActions =
+        //     Object.entries(this.pcc.power.system.actions.additional)
+        //         .filter(([key,data]) => data.type === 'damage')
+        //         .length;
+
+        const powerSys = this.pcc.power.system;
+        if (powerSys.damage ||
+                Object.values(powerSys.actions.additional).some(x => x.type === 'damage')) {
             this.powerHasDamage = true;
             this.systemDamageMods = SwadeSystemPowerMods.getDamageMods();
         }
 
         log('power desc is ', this.pcc.power.system.description);
         this.powerMods = SwadePowerModifierExtractor.attemptExtract(this.pcc.power.system.description);
+        log('power Mods are ', this.powerMods);
     }
 
     static DEFAULT_OPTIONS = {
@@ -123,7 +127,18 @@ class PowerCastingCalculatorApp extends HandlebarsApplicationMixin(ApplicationV2
             isWildCast: this.isWildCast,
         };
 
-        context.powerDesc = await TextEditor.enrichHTML(this.pcc.power.system.description);
+        // TODO: cache these so they're not regenerated all the time
+        context.powerDescEnriched = await TextEditor.enrichHTML(this.pcc.power.system.description);
+
+        await Object.keys(this.powerMods).forEach(key => {
+                this.powerMods[key].hintEnriched =
+                    TextEditor.enrichHTML(this.powerMods[key].hintRaw)
+            }
+        );
+        context.powerMods = await this.powerMods;
+
+            log('FOO', this.powerMods);
+
         return context;
     }
 
@@ -247,9 +262,15 @@ class SwadePowerModifierExtractor {
                 name: match[1],
                 cost: parseInt(match[2]),
                 checked: false,
-                hint: match[3]
+                hintRaw: match[3],
             }
         }
+
+        // Object.values(this.powerMods).forEach(
+        //     function(part, index) {
+        //         this[index].hint = TextEditor.enrichHTML(this[index].hint);
+        // });
+
         return modifiers;
     }
 
