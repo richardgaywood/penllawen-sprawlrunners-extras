@@ -2,9 +2,10 @@
 
 import { log } from "./logger.mjs";
 import {PowerCastingCalculator} from "./power_casting_calculator.mjs";
+import {Spr2Pd as Spr2PD} from "./spr2pd.mjs";
 
 // to use this in a macro:
-// const tools = game.modules.get("swade-dev-scratchpad").tools
+// const tools = game.modules.get("spenllawen-sprawlrunners-extras").tools
 export class DocgTools {
     helloWorld() {
         log('Hello, world!');
@@ -19,6 +20,12 @@ export class DocgTools {
         new PowerCastingCalculator(actor, power).show();
     }
 
+    getSpr2PdDefaultContext() {
+        return Spr2PD.baseContext;
+    }
+    async runSpr2Pd(context) {
+        await new Spr2PD(context).run();
+    }
 
     /** RIP WarpGate :'( */
     async testWarpgate() {
