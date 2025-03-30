@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../penllawen-murderboard-scenes" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../penllawen-totem-zone-grids" vcs="Git" />
   </component>
 </project>
