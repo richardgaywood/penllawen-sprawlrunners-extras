@@ -12,5 +12,6 @@
     <orderEntry type="library" name="SWADE src" level="project" />
     <orderEntry type="library" name="Foundry VTT Types" level="project" />
     <orderEntry type="library" name="Foundry" level="project" />
+    <orderEntry type="module" module-name="penllawen-murderboard-scenes" />
   </component>
 </module>
